@@ -24,20 +24,35 @@ Muse AI — tạo ảnh, video, audio — có cảnh từ phim mẫu "The Last L
 
 ![Quy trình 8 bước](docs/assets/pipeline.svg)
 
-Pipeline đã kiểm chứng qua dự án thật "The Last Lantern" (8 cảnh, 2D Disney/Pixar):
+Pipeline v2 — đã kiểm chứng qua "The Last Lantern" (phim) và vá các lỗi từ quảng cáo "Thinking Uni":
 
 | # | Giai đoạn | Kết quả |
 |---|-----------|---------|
-| 0 | Thu thập đầu vào | Thời lượng → số cảnh, ngôn ngữ, tỷ lệ 16:9/9:16 |
-| 1 | Character sheets | Khóa nhân vật (nhiều góc + biểu cảm) |
-| 2 | Story bible | Chốt kịch bản: logline, character lock, từng cảnh |
-| 3 | Keyframes | K1..K(N+1), luật match-cut |
-| 4 | Mega prompt | 1 prompt copy-paste cho mỗi cảnh |
-| 5 | Generate video | Từng clip first-frame → last-frame |
-| 6 | Làm VO | Kịch bản thuyết minh kiểu kể chuyện |
-| 7 | Dựng phim | ffmpeg: normalize, nối, mix VO |
+| 0 | Thu thập đầu vào | Thời lượng, ngôn ngữ, tỷ lệ 16:9/9:16, **chế độ Phim/Quảng cáo** |
+| 1 | Character sheets | Khóa nhân vật (nhiều góc + biểu cảm), không chữ |
+| 2 | Story bible | Kịch bản: hình (không chữ), kiểu nối từng mối, VO, overlay |
+| 3 | **Âm thanh trước** | VO + từ điển phát âm + **1 bài nhạc** → bảng CUES chia cảnh |
+| 4 | Keyframes | MATCH / CUT / TRANSITION cho từng mối nối |
+| 5 | Mega prompt | Video chỉ có tiếng động — cấm nhạc, cấm lời, cấm chữ |
+| 6 | Generate video | Chain frame cuối thật + `qc.py clips` (lời lạ, mối nối) |
+| 7 | Dựng phim | `assemble.py`: xfade, overlay tiếng Việt, ducking, −14 LUFS |
+| 8 | QC cuối | `qc.py final`: báo cáo số đo + ảnh mối nối |
 
-Kèm theo: **luật realism** (hành động vật lý phải đúng thực tế), **STRICT ASPECT RATIO LOCK** (ref đầu vào phải cùng tỷ lệ với output), và **10+ bài học xương máu**.
+Kèm theo: **luật realism**, **STRICT ASPECT RATIO LOCK**, **chế độ quảng cáo** và **19 bài học xương máu**.
+
+## 🆕 Có gì mới ở v2
+
+| Lỗi ở v1 (đo trên quảng cáo Thinking Uni) | v2 sửa thế nào |
+|---|---|
+| Âm thanh chồng nhau — nhân vật tự nói câu ngoài kịch bản đè lên thuyết minh | Prompt video chỉ có SFX; lời chỉ đi qua 1 track VO |
+| Nhạc đổi đột ngột mỗi 10 giây, hụt tiếng ở mối nối | 1 bài nhạc cho cả phim, tự hạ khi có lời, crossfade |
+| Quá nhỏ tiếng (−26 LUFS) | Chuẩn hóa −14 LUFS như TikTok/Reels/YouTube |
+| Câu CTA ngày ra mắt nghe không rõ | Từ điển phát âm, CTA đọc chậm, kiểm tra độ rõ tự động |
+| Jump cut ở mọi mối nối | Chain từ frame cuối thật hoặc cắt có chủ đích; đo SSIM |
+| Model vẽ chữ lạ ("Disney/PIXAR", "Linh 24") | Vệ sinh prompt + TEXT BAN; mọi chữ là overlay |
+| Agent tự báo "liền mạch" mà không đo | `scripts/qc.py` xuất bảng số đo + ảnh mối nối ở mọi chốt duyệt |
+
+Chi tiết: [`examples/thinking-uni/POSTMORTEM.md`](examples/thinking-uni/POSTMORTEM.md)
 
 ## 🏮 Tác phẩm mẫu: "The Last Lantern"
 
@@ -76,17 +91,27 @@ Bạn không cần đọc các file reference — Muse tự đọc khi cần. M�
 ├── references/               # Hướng dẫn chi tiết từng giai đoạn
 │   ├── 01-character-sheets.md
 │   ├── 02-story-and-script.md
-│   ├── 03-keyframes.md
-│   ├── 04-mega-prompts.md
-│   ├── 05-video-generation.md
-│   ├── 06-vo-production.md
+│   ├── 03-audio-first.md     # VO + nhạc + CUES (làm trước hình)
+│   ├── 04-keyframes.md
+│   ├── 05-mega-prompts.md
+│   ├── 06-video-generation.md
 │   ├── 07-assembly.md
-│   └── 08-lessons.md
+│   ├── 08-qc.md
+│   ├── 09-ads-mode.md        # Chế độ quảng cáo
+│   └── 10-lessons.md
+├── scripts/
+│   ├── assemble.py           # Dựng phim từ edit.json
+│   └── qc.py                 # Kiểm tra chất lượng có số đo
+├── templates/
+│   └── edit.example.json     # Mẫu edit.json
 ├── examples/
-│   └── the-last-lantern/     # Tác phẩm mẫu: STORY, MEGA_PROMPTS, VO_SCRIPT, FLOW
+│   ├── the-last-lantern/     # Tác phẩm mẫu: STORY, MEGA_PROMPTS, VO_SCRIPT, FLOW
+│   └── thinking-uni/         # Post-mortem quảng cáo → lý do có v2
 └── docs/                     # Trang giới thiệu (GitHub Pages) + ảnh minh hoạ
     └── assets/
 ```
+
+Scripts cần Python 3.8+ và ffmpeg (bản có libass). Tùy chọn `pip install faster-whisper` để kiểm tra lời nói.
 
 ## ⭐ Ủng hộ
 

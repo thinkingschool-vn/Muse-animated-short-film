@@ -9,40 +9,43 @@ Biến ý tưởng mơ hồ của user thành một **Story Bible** duy nhất, 
 
 ## Prompt thảo luận (hỏi user, từng câu một, ngắn gọn)
 1. Phim về ai? (nhân vật chính, tuổi, tính cách, ngoại hình)
-2. Câu chuyện một câu là gì? (logline: ai + muốn gì + vật cản + cái giá)
-3. Thế giới diễn ra ở đâu? Phong cách hình ảnh? (VD: 2D Disney/Pixar, anime, 3D...)
-4. Mấy cảnh? Mỗi cảnh bao lâu? (gợi ý: 8 cảnh × 10 giây = phim ~80 giây)
-5. VO ngôn ngữ gì? Giọng kể chuyện hay nhân vật tự thoại?
-6. Nhạc: có motif chủ đạo không? (VD: bài hát ru → full orchestra ở cao trào)
-7. Cảm xúc từng cảnh đi lên hay xuống? Đâu là đỉnh cảm xúc?
+2. Câu chuyện một câu là gì? (logline: ai + muốn gì + vật cản + cái giá) — *ads:* thông điệp chính + CTA (xem `09-ads-mode.md`)
+3. Thế giới diễn ra ở đâu? Phong cách hình ảnh? (2D vẽ tay, 3D hoạt hình, anime...)
+4. VO ngôn ngữ gì? Giọng kể chuyện hay nhân vật tự thoại? (khuyến nghị: người kể chuyện — nhân vật không nói trong clip)
+5. Nhạc: mood + có điểm nhấn ở đâu? (1 bài cho cả phim)
+6. Cảm xúc từng cảnh đi lên hay xuống? Đâu là đỉnh cảm xúc?
 
 ## Template STORY.md (viết xong đưa user duyệt)
 ```markdown
 # <TÊN PHIM> — Story Bible
-*Dòng mô tả: phong cách, số cảnh, ngôn ngữ VO*
+*Phong cách (2D/3D — khớp character sheet), số cảnh, tỷ lệ, ngôn ngữ VO, chế độ: Phim | Quảng cáo*
 
 ## Logline
 <1 câu>
 
-## Characters (CANONICAL LOCK — chép nguyên văn vào mọi prompt)
-- **<TÊN> (tuổi, vai):** <mô tả ngoại hình chi tiết + tính cách + arc>
+## Characters (CANONICAL LOCK — chép nguyên văn phần NGOẠI HÌNH vào mọi prompt)
+- **<TÊN> (vai):** NGOẠI HÌNH (dùng trong prompt, không tên, tuổi viết bằng chữ): <...>
+  · Tính cách + arc (chỉ để tham khảo, không đưa vào prompt)
 
 ## World & Style Lock
-<Thế giới, phong cách hình ảnh, 16:9 1280x720, âm thanh, nhạc, VO>
+<Thế giới, phong cách hình ảnh mô tả bằng tính từ (không tên hãng/studio), tỷ lệ + độ phân giải>
 
-## Continuity Rule
-**Last frame of Scene N = first frame of Scene N+1 (match cut).**
+## Audio Plan
+- Nhạc: 1 bài — <mood, BPM nếu biết, điểm nhấn>
+- VO: <giọng>, ngân sách âm tiết/cảnh
+- SFX: chỉ tiếng động từ clip; nhân vật không nói
 
 ### Scene N — "<Tên cảnh>"
 - Beat: <cảm xúc chủ đạo>
-- First frame: <mô tả>
-- Last frame: <mô tả> (= first frame cảnh N+1)
-- VO: "<câu thoại>"
-- Music: <diễn biến nhạc>
+- Hình (KHÔNG chứa chữ): first frame <...> · last frame <...> · shot <cỡ cảnh>
+- Nối sang cảnh N+1: MATCH | CUT | TRANSITION
+- VO: "<câu thoại>" (<số âm tiết>)
+- Overlay (chữ thêm khi dựng): "<...>" hoặc —
 ```
 
 ## Quy tắc chốt
 - Phần **Characters (CANONICAL LOCK)** phải viết đủ chi tiết để paste nguyên văn vào prompt mà không cần sửa.
-- Mỗi cảnh bắt buộc có first frame + last frame mô tả rõ — đây là nguyên liệu cho keyframes ở giai đoạn 3.
-- VO mỗi cảnh chỉ 1–2 câu, đơn giản, quốc tế (dễ dịch).
+- Mỗi cảnh bắt buộc có first frame + last frame mô tả rõ + kiểu nối — nguyên liệu cho keyframes.
+- **Ý nghĩa bằng chữ** (học phí, slogan, ngày, %) chỉ nằm ở VO hoặc Overlay — không bao giờ ở cột Hình. Ví dụ sai: "tường ghi chữ 'học phí'". Đúng: Hình "tường đá xám cao" + Overlay/VO nói về học phí.
+- VO mỗi cảnh trong ngân sách âm tiết (`03-audio-first.md`); số cảnh/độ dài cảnh chốt lại sau khi đo VO thật.
 - User duyệt STORY.md xong mới sang giai đoạn 3. Đổi kịch bản sau khi đã vẽ = làm lại từ đầu.

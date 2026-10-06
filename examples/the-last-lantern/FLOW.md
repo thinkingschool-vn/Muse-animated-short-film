@@ -52,4 +52,4 @@ flowchart LR
 - [ ] Kiểm audio stream của từng clip trước khi mix (không giả định clip im lặng)
 - [ ] Tổng thời lượng ≈ con số đã chốt ở Giai đoạn 0
 
-Chi tiết từng bước: [`references/`](../../references/) · Bài học xương máu: [`08-lessons.md`](../../references/08-lessons.md)
+Chi tiết từng bước: [`references/`](../../references/) · Bài học xương máu: [`10-lessons.md`](../../references/10-lessons.md)

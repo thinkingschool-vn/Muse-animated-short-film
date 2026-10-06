@@ -27,10 +27,38 @@ Nếu clip vẫn lệch sau 2–3 lần thử, vấn đề nằm ở mega prompt
 Trộn clip 1248×704 với 1280×720 trong 1 lệnh concat = lỗi hoặc méo hình. Chuẩn hóa tất cả về cùng độ phân giải/fps/codec trước.
 
 ## 9. VO là gia vị, không phải món chính
-Phim 80 giây chỉ cần ~45 giây VO. Khoảng lặng cho hình ảnh và nhạc thở mới là thứ khiến VO đắt giá. Cảnh đỉnh cảm xúc: cho moment tự lên tiếng, VO rút lui.
+Phim 80 giây chỉ cần ~45 giây VO. Khoảng lặng cho hình ảnh và nhạc thở mới là thứ khiến VO đắt giá. Cảnh đỉnh cảm xúc: cho moment tự lên tiếng, VO rút lui. *(Quảng cáo khác: VO phủ 70–85% — xem `09-ads-mode.md`.)*
 
 ## 10. Đặt tên file có ý nghĩa từ ngày đầu
 `scene1-fading-light.mp4` chứ không phải `media-generation-...-uuid.mp4`. Đến lúc có 30+ file trong folder, bạn sẽ cảm ơn chính mình.
 
 ## 11. Khóa tỷ lệ khung hình từ câu hỏi đầu tiên
 16:9 hay 9:16 không phải chuyện "để sau tính" — nó quyết định toàn bộ ref đầu vào. Một character sheet vẽ 16:9 đem đi generate video 9:16 sẽ cho ra bố cục vỡ. Hỏi và khóa ngay ở Giai đoạn 0, dán STRICT ASPECT RATIO LOCK vào mọi prompt.
+
+---
+
+# Bài học từ quảng cáo "Thinking Uni" (60s, 9:16) — xem `examples/thinking-uni/POSTMORTEM.md`
+
+## 12. Có chữ "VO"/lời thoại trong prompt video = nhân vật tự nói
+Prompt video có `VO: "..."` và `MUSIC:` → model sinh lời + nhạc riêng cho từng clip. Kết quả: nhân vật nói câu ngoài kịch bản (*"Chúng ta cùng nhau, học hỏi và chia sẻ kiến thức nhé!"*, *"We did it together."*) đè lên VO TTS. Prompt video chỉ có SFX + "No music. No dialogue. No narration."
+
+## 13. Mỗi clip một bài nhạc = phim có 6 bài nhạc
+Nhạc đổi đột ngột mỗi 10 giây, hụt tiếng 1,3s ở mối nối. Cả phim dùng **1 bài nhạc** đặt ở khâu dựng.
+
+## 14. Làm âm thanh trước, hình sau
+VO đặt cứng "+1s mỗi cảnh" cho ra nhịp đọc kiểu máy và chỗ chết 3 giây. Thu VO trước → đo → chia cảnh theo VO (bảng CUES).
+
+## 15. "Gần giống" ở mối nối tệ hơn "khác hẳn"
+Định match-cut nhưng model trôi khỏi last-frame → jump cut (SSIM 0,33). Mối nối nào cũng phải chọn rõ: MATCH thật (chain từ frame cuối thật) hoặc CUT hẳn (đổi cỡ cảnh) hoặc chuyển cảnh mềm.
+
+## 16. Model in ra chữ nó đọc được trong prompt
+"Disney/Pixar" → chữ "Disney/PIXAR" trên 3 clip; "Linh, 24" → nhãn "Linh 24" trên hologram; tường "ghi chữ học phí" → chữ lạ. Prompt hình không chứa tên riêng, tên hãng, con số; mọi chữ là overlay khi dựng.
+
+## 17. Đừng tự khai QC
+Agent báo "match-cut liền mạch, on-model" mà không đo; thực tế 5/5 mối nối lệch, flash cháy sáng đúng lúc hiện "100% MIỄN PHÍ". Mỗi báo cáo phải kèm số đo + ảnh từ `scripts/qc.py`.
+
+## 18. Câu quan trọng nhất phải nghe rõ nhất
+Câu CTA "ra mắt ngày 11 tháng 10" bị nhạc + tiếng gốc nuốt mất (nhận dạng ra *"…mắc kệ mũi thằng Mùi"*). CTA: câu riêng, đọc chậm, số viết bằng chữ, nhạc hạ sâu, kiểm tra round-trip.
+
+## 19. Chuẩn loudness của nền tảng
+Phim ra −26,3 LUFS — nghe lí nhí trên điện thoại so với video khác (≈ −14). Luôn loudnorm về −14 LUFS (assemble.py làm sẵn).

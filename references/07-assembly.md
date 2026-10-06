@@ -1,48 +1,56 @@
-# Giai đoạn 7 — Dựng phim bằng ffmpeg
+# Giai đoạn 7 — Dựng phim bằng `scripts/assemble.py`
 
 ## Mục đích
-Nối các clip thành 1 phim hoàn chỉnh, mix VO đúng timecode, xuất file cuối đạt chuẩn.
+Nối cảnh, chuyển cảnh, chèn chữ, mix 3 lớp âm thanh và chuẩn hóa loudness **bằng 1 lệnh lặp lại được** — không viết tay lệnh ffmpeg mỗi lần (dễ sai timecode, quên ducking, quên loudness).
 
-## Bước 1 — Kiểm tra audio gốc của clip
-```bash
-ffprobe -v error -show_entries stream=index,codec_type -of csv <clip.mp4>
-```
-- Clip có audio nền (tiếng gió, nhạc...) → **giữ lại**, duck nhỏ dưới VO.
-- Clip im lặng → mix VO trực tiếp.
+## Bước 1 — Viết `edit.json`
+Copy `templates/edit.example.json` vào thư mục dự án rồi sửa. Các khối chính:
 
-## Bước 2 — Normalize tất cả clip về cùng chuẩn
-Độ phân giải theo tỷ lệ đã khóa ở Giai đoạn 0: 16:9 → 1280×720; 9:16 → 720×1280.
-```bash
-# 16:9:
-ffmpeg -i <clip>.mp4 -vf "scale=1280:720,fps=24" \
-  -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 48000 <clip>_norm.mp4
-# 9:16:
-ffmpeg -i <clip>.mp4 -vf "scale=720:1280,fps=24" \
-  -c:v libx264 -pix_fmt yuv420p -c:a aac -ar 48000 <clip>_norm.mp4
-```
-Tất cả clip phải cùng 1280×720, 24fps, audio AAC 48kHz trước khi nối.
+| Khối | Nội dung |
+|---|---|
+| `aspect`, `fps` | `"9:16"` → 720×1280, `"16:9"` → 1280×720; 24fps |
+| `scenes[]` | `file`, `in`, `out` (cắt bỏ đầu/đuôi lỗi, flash), `transition` sang cảnh kế (`"cut"` hoặc `{type, duration}`) |
+| `sfx` | Tiếng gốc clip: `keep`, `gain_db` (mặc định −14). Clip còn lời lạ → `keep: false` |
+| `music` | 1 file nhạc cho cả phim: `gain_db`, `fade_in`, `fade_out`, `start_offset` |
+| `vo[]` | Mỗi câu: `file` + (`scene` + `offset`) hoặc `at` tuyệt đối. **Script dừng nếu 2 câu chồng nhau** |
+| `duck` | Mức hạ nhạc khi có lời (mặc định đã ổn) |
+| `font` | File .ttf có dấu tiếng Việt (gợi ý Be Vietnam Pro — Google Fonts) |
+| `overlays[]` | `text`, (`scene`+`offset` hoặc `at`), `duration`, `style`, tùy chọn `y` (0..1), `anim` |
+| `loudness` | Mặc định −14 LUFS, TP −1,5 dBTP |
 
-## Bước 3 — Nối các cảnh
-```bash
-# list.txt: mỗi dòng: file '<clip>_norm.mp4' theo thứ tự cảnh 1→N
-ffmpeg -f concat -safe 0 -i list.txt -c copy joined.mp4
-```
-Nhờ luật match-cut (frame cuối N = frame đầu N+1) nên các mối nối gần như vô hình. Nếu thấy frame trùng lặp quá lâu ở mối nối, trim bớt bằng `-ss`/`-t` trước khi nối.
+Chuyển cảnh xfade hay dùng: `fade`, `dissolve`, `fadeblack`, `smoothup`, `slideleft`, `circleopen`. Tránh `fadewhite` cạnh đoạn đã sáng.
 
-## Bước 4 — Mix VO vào đúng timecode
-Cảnh N (mỗi cảnh D giây) → VO đặt ở offset = (N-1)×D + 1 giây:
-```bash
-ffmpeg -i joined.mp4 -i vo_canh1.mp3 -i vo_canh2.mp3 \
- -filter_complex "[1:a]adelay=1000|1000[a1];[2:a]adelay=11000|11000[a2]; \
- [0:a][a1][a2]amix=inputs=3:duration=first:normalize=0[a]" \
- -map 0:v -map "[a]" -c:v copy -c:a aac final.mp4
-```
-(`adelay` tính bằng mili-giây: cảnh 2 bắt đầu giây 11 → delay 11000.)
+Một clip 10s có thể dùng **2 lần** với in/out khác nhau → nhịp nhanh hơn mà không cần generate thêm.
 
-## Bước 5 — Verify file cuối
+## Bước 2 — Xem timeline trước khi render
 ```bash
-ffprobe -v error -select_streams v:0 \
-  -show_entries stream=width,height,r_frame_rate -of default=noprint_wrappers=1 final.mp4
-ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 final.mp4
+python scripts/assemble.py edit.json --plan
 ```
-Checklist: 1280×720 ✓, 24fps ✓, có cả video + audio stream ✓, tổng thời lượng = N×D ✓. Xem lại 1 lượt từ đầu đến cuối trước khi giao.
+In mốc bắt đầu/kết thúc từng cảnh sau khi trừ chuyển cảnh. Dùng để chỉnh `offset` VO/overlay.
+
+## Bước 3 — Render
+```bash
+python scripts/assemble.py edit.json
+```
+Script làm 5 việc:
+1. Chuẩn hóa từng cảnh (cắt, scale+crop, fps) — clip không có audio được thêm khoảng lặng.
+2. Sinh overlay ASS: font tiếng Việt, viền, fade/pop, **tự kẹp trong vùng an toàn** (9:16: tránh 14% trên, 24% dưới, 14% phải — chỗ UI TikTok/Reels).
+3. Nối cảnh + xfade; tiếng gốc crossfade theo.
+4. Mix: SFX (nhỏ) + nhạc → **tự hạ khi có lời** (sidechain) → + VO.
+5. Loudnorm 2 lượt → MP4 `+faststart`; ghi `<output>.timeline.json` + in cảnh báo (overlay quá ngắn để đọc, nhạc ngắn hơn phim…).
+
+Yêu cầu: Python 3.8+, ffmpeg có `libass` (bản build "full" thường có sẵn).
+
+## Bước 4 — QC bắt buộc
+```bash
+python scripts/qc.py final final/phim.mp4 --aspect 9:16 --duration 60 --script vo_lines.txt
+```
+`vo_lines.txt` = mỗi dòng 1 câu VO (bản **Hiển thị**). Xem chi tiết ngưỡng ở `08-qc.md`. Chưa PASS thì chưa giao.
+
+## Lỗi thường gặp
+| Thông báo | Sửa |
+|---|---|
+| `VO CHỒNG NHAU` | Dời `offset`, rút gọn câu, hoặc kéo dài cảnh |
+| `out vượt độ dài clip` | Kiểm tra lại thời lượng clip bằng ffprobe |
+| Chữ thiếu dấu / sai font | Khai báo `font.file` + `font.name` đúng tên family |
+| `No such filter: 'ass'` | ffmpeg thiếu libass → cài bản full |

@@ -8,29 +8,35 @@ Character sheet PHẢI vẽ đúng tỷ lệ đã khóa — 16:9 hay 9:16. Sheet
 
 ## Prompt mẫu (dùng cho từng nhân vật, prompt tiếng Anh)
 ```
-Character reference sheet, [16:9 landscape | 9:16 vertical] orientation, soft 2D Disney/Pixar
-animation style, clean rounded shapes, warm cinematic lighting.
+Character reference sheet, [16:9 landscape | 9:16 vertical] orientation,
+stylized 3D feature-animation look (or: soft hand-drawn 2D look — chọn 1 và giữ nguyên cả dự án),
+clean rounded shapes, warm cinematic lighting.
 STRICT ASPECT RATIO LOCK: the sheet MUST be exactly [16:9 | 9:16]. This sheet
 will directly condition video output framing — no other ratio is acceptable.
-Character: [MÔ TẢ CHI TIẾT: tuổi, giới tính, tóc, mắt, trang phục từng món,
-màu sắc chính xác, phụ kiện, đặc điểm nhận dạng]
+Character: [NGOẠI HÌNH CHI TIẾT: độ tuổi bằng chữ ("in her mid-twenties"), giới tính,
+tóc, mắt, trang phục từng món, màu sắc chính xác, phụ kiện, đặc điểm nhận dạng]
 Show: front view, side view, back view, 3/4 view, plus 3 expression close-ups
 (happy, sad, determined). Same outfit and colors in every view, consistent
-proportions. Plain soft neutral background, no text, no watermark.
+proportions. Plain soft neutral background.
+TEXT BAN: no text, no names, no labels, no numbers, no logos, no watermark.
 ```
 
+> ⛔ **Không** đưa vào prompt hình: tên nhân vật, tuổi bằng số, tên hãng/studio ("Disney", "Pixar"). Dự án Thinking Uni: model vẽ chữ "Disney/PIXAR" lên clip và nhãn "Linh 24" lên hologram. Tên nhân vật chỉ dùng trong tài liệu (STORY.md), không dùng trong prompt.
+
 ## Quy trình
-1. Viết mô tả nhân vật thật cụ thể (màu áo, kiểu tóc, phụ kiện) — càng chi tiết càng khó lệch về sau. Hỏi user chốt mô tả trước khi vẽ.
-2. Generate bằng CLI:
+1. Viết mô tả nhân vật thật cụ thể (màu áo, kiểu tóc, phụ kiện). Với nhân vật **phụ** cũng phải khóa các chi tiết dễ trôi: kính (kiểu gọng), râu (có/không, độ dài), kiểu tóc. Hỏi user chốt mô tả trước khi vẽ.
+2. Generate bằng CLI (orientation theo tỷ lệ đã khóa):
    ```
    /opt/hatch/bin/media-generation --media-subagent-output-type image \
-     --orientation landscape --output-dir <project>/character_sheets \
+     --orientation <vertical | landscape> --output-dir <project>/character_sheets \
      "<prompt trên>"
    ```
-3. Kiểm tra: đúng 16:9 (dùng `ffprobe` hoặc xem ảnh), các góc có đồng nhất trang phục/màu sắc không. Chưa đạt → sửa prompt, vẽ lại.
-4. Lưu sheet với tên rõ ràng: `milo-sheet-16x9.webp`, `lyra-sheet-16x9.webp`...
+3. Kiểm tra: đúng tỷ lệ (ffprobe), các góc đồng nhất trang phục/màu sắc, **không có chữ**. Chưa đạt → sửa prompt, vẽ lại.
+4. Ghi lại phong cách thực tế của sheet (2D hay 3D) — style lock ở các giai đoạn sau phải mô tả đúng phong cách này.
+5. Lưu sheet với tên rõ ràng: `linh-sheet-9x16.webp`, `thay-an-sheet-9x16.webp`...
 
 ## Checklist trước khi sang giai đoạn 2
-- [ ] Mỗi nhân vật chính đều có sheet 16:9 riêng
+- [ ] Mỗi nhân vật (chính + phụ có thoại/xuất hiện nhiều) có sheet riêng đúng tỷ lệ đã khóa
 - [ ] Mô tả nhân vật đã được user chốt (không đổi giữa chừng)
 - [ ] Sheet đủ các góc nhìn + biểu cảm, nền trơn, không chữ
+- [ ] Đã ghi phong cách thực tế (2D/3D) để dùng cho style lock

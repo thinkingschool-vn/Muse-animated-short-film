@@ -1,0 +1,51 @@
+{
+  "_note": "Mẫu edit.json cho scripts/assemble.py — dựa trên phim Thinking Uni 60s 9:16. Đường dẫn tính từ thư mục chứa file này. Các khóa bắt đầu bằng '_' là ghi chú, script bỏ qua.",
+  "aspect": "9:16",
+  "fps": 24,
+  "output": "final/thinking-uni-60s-9x16.mp4",
+
+  "_scenes_note": "in/out = đoạn dùng trong clip gốc (giây). transition = cách chuyển SANG cảnh kế tiếp: 'cut' hoặc {type: fade|fadewhite|fadeblack|dissolve|slideup|smoothleft|circleopen..., duration}. Một clip 10s có thể dùng 2 lần với in/out khác nhau để nhịp nhanh hơn.",
+  "scenes": [
+    {"id": "c1", "file": "videos/c1.mp4", "in": 0.0, "out": 10.0, "transition": {"type": "fade", "duration": 0.4}},
+    {"id": "c2", "file": "videos/c2.mp4", "in": 0.2, "out": 10.0, "transition": "cut"},
+    {"id": "c3", "file": "videos/c3.mp4", "in": 0.0, "out": 10.0, "transition": {"type": "dissolve", "duration": 0.5}},
+    {"id": "c4", "file": "videos/c4.mp4", "in": 0.0, "out": 10.0, "transition": {"type": "smoothup", "duration": 0.3}},
+    {"id": "c5", "file": "videos/c5.mp4", "in": 0.0, "out": 10.0, "transition": {"type": "fade", "duration": 0.4}},
+    {"id": "c6", "file": "videos/c6.mp4", "in": 0.0, "out": 10.0}
+  ],
+
+  "_sfx_note": "Tiếng gốc của clip (chỉ nên còn SFX). Nếu qc.py clips báo có lời nói lạ mà không render lại được → keep=false.",
+  "sfx": {"keep": true, "gain_db": -14},
+
+  "_music_note": "MỘT bài nhạc liền mạch cho cả phim, không lời, dài ≥ phim. gain_db là mức nền khi không có VO; khi có VO sẽ tự hạ thêm (duck).",
+  "music": {"file": "audio/music.wav", "gain_db": -9, "start_offset": 0, "fade_in": 0.3, "fade_out": 2.5},
+
+  "_vo_note": "Mỗi câu VO 1 file (đã thu TTS + đo độ dài). Mốc theo cảnh: scene + offset (giây tính từ đầu cảnh trên timeline). Script báo lỗi nếu 2 câu chồng nhau.",
+  "vo": [
+    {"file": "audio/vo_01.wav", "scene": "c1", "offset": 0.5},
+    {"file": "audio/vo_02.wav", "scene": "c2", "offset": 0.4},
+    {"file": "audio/vo_03.wav", "scene": "c3", "offset": 0.4},
+    {"file": "audio/vo_04.wav", "scene": "c4", "offset": 0.4},
+    {"file": "audio/vo_05.wav", "scene": "c5", "offset": 0.3},
+    {"file": "audio/vo_06.wav", "scene": "c6", "offset": 0.3, "gain_db": 1.5}
+  ],
+
+  "duck": {"threshold": 0.015, "ratio": 10, "attack_ms": 15, "release_ms": 450},
+
+  "_font_note": "Font PHẢI có đủ dấu tiếng Việt. Gợi ý: Be Vietnam Pro (Google Fonts, miễn phí). 'name' = tên family bên trong file font.",
+  "font": {"file": "fonts/BeVietnamPro-Bold.ttf", "name": "Be Vietnam Pro"},
+
+  "_overlays_note": "style: title (trên) | caption (dưới, trên vùng UI) | cta (giữa, to, vàng) | brand | small. y (0..1) để đặt vị trí dọc tùy ý — tự kẹp trong vùng an toàn. anim: fade | pop | none.",
+  "overlays": [
+    {"text": "Thinking University", "scene": "c2", "offset": 1.0, "duration": 3.5, "style": "brand"},
+    {"text": "THINK — Tư duy sâu", "scene": "c3", "offset": 0.6, "duration": 3.0, "style": "title"},
+    {"text": "WORK & LEARN — Kỹ năng số", "scene": "c4", "offset": 0.6, "duration": 3.0, "style": "title"},
+    {"text": "100% MIỄN PHÍ", "scene": "c5", "offset": 1.0, "duration": 3.5, "style": "cta"},
+    {"text": "TRI THỨC KHÔNG RÀO CẢN", "scene": "c6", "offset": 0.5, "duration": 9.0, "style": "title"},
+    {"text": "RA MẮT 11/10", "scene": "c6", "offset": 1.0, "duration": 8.5, "style": "cta", "y": 0.58},
+    {"text": "app.thinkingschool.vn/thinking-uni", "scene": "c6", "offset": 2.0, "duration": 7.5, "style": "small", "y": 0.68}
+  ],
+
+  "_loudness_note": "−14 LUFS = chuẩn TikTok/Reels/YouTube. TP −1.5 chừa khoảng an toàn cho AAC (thực đo sau mã hóa ≈ −1).",
+  "loudness": {"I": -14, "TP": -1.5, "LRA": 11}
+}
