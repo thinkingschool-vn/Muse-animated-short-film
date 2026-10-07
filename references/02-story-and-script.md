@@ -48,4 +48,4 @@ Biến ý tưởng mơ hồ của user thành một **Story Bible** duy nhất, 
 - Mỗi cảnh bắt buộc có first frame + last frame mô tả rõ + kiểu nối — nguyên liệu cho keyframes.
 - **Ý nghĩa bằng chữ** (học phí, slogan, ngày, %) chỉ nằm ở VO hoặc Overlay — không bao giờ ở cột Hình. Ví dụ sai: "tường ghi chữ 'học phí'". Đúng: Hình "tường đá xám cao" + Overlay/VO nói về học phí.
 - VO mỗi cảnh trong ngân sách âm tiết (`03-audio-first.md`); số cảnh/độ dài cảnh chốt lại sau khi đo VO thật.
-- User duyệt STORY.md xong mới sang giai đoạn 3. Đổi kịch bản sau khi đã vẽ = làm lại từ đầu.
+- User duyệt STORY.md hoặc tự động chốt theo kịch bản tối ưu sau 5 phút không phản hồi mới sang giai đoạn 3. Đổi kịch bản sau khi đã vẽ = làm lại từ đầu.

@@ -35,7 +35,20 @@ Quyết định ngôn ngữ VO, VO_SCRIPT.md, ngôn ngữ thảo luận. Chữ t
 - **Quảng cáo** (giới thiệu sản phẩm/sự kiện, kêu gọi đăng ký/mua) → đọc `references/09-ads-mode.md` ngay, hỏi thêm: CTA chính xác + ngày/giá, link, nền tảng, cách đọc tên thương hiệu, tối đa 3 thông điệp.
 
 ## Workflow
-Làm đúng thứ tự. Mỗi giai đoạn có hướng dẫn + checklist trong `references/`. Kết thúc mỗi giai đoạn: đưa user duyệt kèm bằng chứng (ảnh/âm thanh/bảng số đo).
+Làm đúng thứ tự. Mỗi giai đoạn có hướng dẫn + checklist trong `references/`. Kết thúc mỗi giai đoạn: đưa user duyệt kèm bằng chứng (ảnh/âm thanh/bảng số đo) và áp dụng **Cơ chế Chốt duyệt Tự động 5 Phút**.
+
+### Cơ chế Chốt duyệt Tự động 5 Phút (Auto-Approval Protocol)
+Để tiến độ sản xuất diễn ra liên tục, không bị đình trệ khi user bận hoặc không theo dõi chat liên tục:
+1. **Gửi kết quả kèm đề xuất tối ưu:** Kết thúc mỗi giai đoạn (Giai đoạn 0–8), Agent gửi sản phẩm/bằng chứng (character sheet, kịch bản STORY.md, audio/CUES, keyframes, mega prompts, clip QC, video dựng, báo cáo QC...) và nêu rõ phương án tối ưu được chọn.
+2. **Thông báo đếm ngược 5 phút:** Luôn kết thúc tin nhắn bằng câu chốt:
+   > *"Em gửi anh [kết quả Giai đoạn X]. Em đề xuất [phương án tối ưu nhất]. Trong vòng 5 phút nếu anh bận hoặc chưa kịp phản hồi, em sẽ tự động duyệt phương án này và tiến hành tiếp Giai đoạn [X+1] nhé ạ!"*
+3. **Cơ chế kỹ thuật thực hiện:**
+   - **Môi trường có công cụ hẹn giờ (schedule/timer):** Agent lập tức gọi `schedule(DurationSeconds=300, TimerCondition="any", Prompt="Hết 5 phút chờ duyệt Giai đoạn X: Người dùng không phản hồi, tự động duyệt phương án tối ưu và bắt đầu Giai đoạn X+1.")` rồi kết thúc lượt.
+     * Nếu trong 5 phút user gửi tin nhắn (bất kỳ nội dung nào), timer tự động hủy, Agent thức dậy và ưu tiên xử lý ý kiến của user.
+     * Nếu sau 5 phút không có tin nhắn từ user, timer kích hoạt notification, Agent tự động thức dậy, ghi nhận đã auto-approve sau 5 phút và tự động triển khai tiếp giai đoạn sau.
+   - **Môi trường chat thông thường (không có background timer):** Agent không được dừng chờ bị động (không được halt chờ user gõ duyệt mới chạy tiếp). Sau khi gửi thông báo 5 phút, Agent chủ động tiếp tục thực thi giai đoạn tiếp theo theo phương án tốt nhất đã đề xuất.
+4. **Quyền can thiệp của User (Human Override):** Bất cứ lúc nào user phản hồi (trong hoặc sau 5 phút), Agent ngay lập tức dừng tiến trình tự động và ưu tiên làm theo yêu cầu chỉnh sửa của user.
+5. **Ngoại lệ an toàn:** Duy nhất Giai đoạn 0: chỉ dừng hẳn chờ user khi thiếu các thông số bắt buộc cơ bản (thời lượng, ngôn ngữ, tỷ lệ, chế độ) mà user chưa cung cấp.
 
 | # | Giai đoạn | File | Đầu ra |
 |---|---|---|---|
@@ -81,3 +94,4 @@ Mẫu `edit.json`: `templates/edit.example.json`. Nếu môi trường thiếu `
 9. **Dựng bằng assemble.py**, không viết tay lệnh ffmpeg nối/mix — để có ducking, crossfade, loudnorm, kiểm tra VO chồng nhau.
 10. **Đo, không tự khai** (luật nền 3): báo user bằng bảng `qc_report.md` + ảnh `boundaries.jpg`. Chưa PASS thì chưa giao; nếu buộc phải giao khi còn WARN, nói rõ từng WARN.
 11. Mọi con số user sẽ hành động theo (số cảnh, thời lượng, độ phân giải, LUFS) lấy từ output tool thực tế, không đoán.
+12. **Tự động duyệt sau 5 phút:** Tại mọi điểm chốt duyệt giai đoạn, nếu sau 5 phút user không có phản hồi thì tự động duyệt phương án tối ưu đã đề xuất và làm tiếp (không dừng chờ bị động).

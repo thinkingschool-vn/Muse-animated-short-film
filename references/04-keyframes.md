@@ -28,3 +28,8 @@ Vẽ trước các "cột mốc" hình ảnh: first frame và last frame của t
 - [ ] Nhân vật khớp sheet; không có chữ/logo/nhãn lạ
 - [ ] Tất cả đúng tỷ lệ đã khóa ở Giai đoạn 0
 - [ ] (Ads) Shot có overlay đã chừa khoảng trống cho chữ
+
+## Duyệt & Tự động làm tiếp
+Sau khi sinh và kiểm tra keyframes, gửi user 4 ảnh đại diện + tóm tắt kiểu nối giữa các cảnh kèm thông báo mốc chờ 5 phút:
+> *"Em gửi anh 4 ảnh đại diện keyframe và kiểu nối giữa các cảnh. Trong vòng 5 phút nếu anh bận hoặc chưa kịp phản hồi, em sẽ tự động duyệt phương án này để sang giai đoạn 5–6: viết mega prompt và sinh các clip video nhé ạ!"*
+Hết 5 phút tự động tiến hành giai đoạn tiếp theo (hoặc kích hoạt schedule 300s).
